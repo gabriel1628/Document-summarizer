@@ -3,34 +3,24 @@ from langchain_core.prompts import PromptTemplate
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain.chains.summarize import load_summarize_chain
 
-# Import providers as needed
-try:
-    from langchain_openai import ChatOpenAI
-except ImportError:
-    ChatOpenAI = None
-try:
-    from langchain_mistralai import ChatMistralAI
-except ImportError:
-    ChatMistralAI = None
-try:
-    from langchain_community.llms import HuggingFaceEndpoint
-except ImportError:
-    HuggingFaceEndpoint = None
-# Add imports for Claude, Gemini, Ollama, etc. as needed
-
 
 def get_llm(provider, api_key):
-    if provider == "OpenAI" and ChatOpenAI:
+    # fmt: off
+    if provider == "OpenAI":
+        from langchain_openai import ChatOpenAI 
         return ChatOpenAI(model="gpt-4o-mini", temperature=0.3, api_key=api_key)
-    elif provider == "Mistral" and ChatMistralAI:
+    elif provider == "Mistral":
+        from langchain_mistralai import ChatMistralAI
         return ChatMistralAI(
             model="mistral-small-latest", temperature=0.3, api_key=api_key
         )
-    elif provider == "Hugging Face" and HuggingFaceEndpoint:
+    elif provider == "Hugging Face":
+        from langchain_huggingface import HuggingFaceEndpoint
         return HuggingFaceEndpoint(
             repo_id="google/flan-t5-xxl", huggingfacehub_api_token=api_key
         )
     # Add logic for Claude, Gemini, Ollama, etc.
+    # fmt: on
     else:
         raise ValueError(
             f"Provider '{provider}' is not supported or missing dependencies."
