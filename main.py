@@ -43,22 +43,49 @@ with tab2:
                 with st.expander("Text Preview (first 500 characters)"):
                     st.write(text[:500] + ("..." if len(text) > 500 else ""))
 
-st.markdown('<p class="sub-header">OpenAI API Key</p>', unsafe_allow_html=True)
+# Add provider selection
+st.markdown('<p class="sub-header">LLM Provider</p>', unsafe_allow_html=True)
+provider = st.selectbox(
+    "Choose LLM Provider",
+    ["OpenAI", "Mistral", "Claude", "Gemini", "Hugging Face", "Ollama"],
+    index=0,
+)
+
+# Show API key input for the selected provider
+api_key_label = {
+    "OpenAI": "OpenAI API Key",
+    "Mistral": "Mistral API Key",
+    "Claude": "Claude API Key",
+    "Gemini": "Gemini API Key",
+    "Hugging Face": "Hugging Face API Key",
+    "Ollama": "Ollama Endpoint (optional)",
+}
+api_key_help = {
+    "OpenAI": "Your OpenAI API key is required.",
+    "Mistral": "Your Mistral API key is required.",
+    "Claude": "Your Claude API key is required.",
+    "Gemini": "Your Gemini API key is required.",
+    "Hugging Face": "Your Hugging Face API key is required.",
+    "Ollama": "Ollama usually runs locally. Enter endpoint if not default.",
+}
+st.markdown(
+    f'<p class="sub-header">{api_key_label[provider]}</p>', unsafe_allow_html=True
+)
 api_key = st.text_input(
-    "Enter your OpenAI API Key",
+    f"Enter your {api_key_label[provider]}",
     type="password",
-    help="Your API key is required.",
+    help=api_key_help[provider],
 )
 
 if "summary" not in st.session_state:
     st.session_state.summary = None
 
 if st.button("Generate Summary"):
-    if not api_key:
-        st.error("Please enter your OpenAI API Key")
+    if not api_key and provider != "Ollama":
+        st.error(f"Please enter your {api_key_label[provider]}")
     elif text:
         with st.spinner("Generating summary..."):
-            summary = summarize_text(text, api_key, st)
+            summary = summarize_text(text, api_key, st, provider)
             if summary:
                 st.session_state.summary = summary
     else:

@@ -51,7 +51,7 @@ def sidebar_info():
         """
     1. Select either "Upload File" or "Enter URL" tab
     2. Provide your document or URL
-    3. Enter your OpenAI API key
+    3. Enter your API key
     4. Click "Generate Summary"
     5. View and download your summary
     """

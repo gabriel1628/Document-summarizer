@@ -1,17 +1,49 @@
-from langchain_openai import ChatOpenAI
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import PromptTemplate
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain.chains.summarize import load_summarize_chain
 
+# Import providers as needed
+try:
+    from langchain_openai import ChatOpenAI
+except ImportError:
+    ChatOpenAI = None
+try:
+    from langchain_mistralai import ChatMistralAI
+except ImportError:
+    ChatMistralAI = None
+try:
+    from langchain_community.llms import HuggingFaceEndpoint
+except ImportError:
+    HuggingFaceEndpoint = None
+# Add imports for Claude, Gemini, Ollama, etc. as needed
 
-def summarize_text(text, api_key, st):
+
+def get_llm(provider, api_key):
+    if provider == "OpenAI" and ChatOpenAI:
+        return ChatOpenAI(model="gpt-4o-mini", temperature=0.3, api_key=api_key)
+    elif provider == "Mistral" and ChatMistralAI:
+        return ChatMistralAI(
+            model="mistral-small-latest", temperature=0.3, api_key=api_key
+        )
+    elif provider == "Hugging Face" and HuggingFaceEndpoint:
+        return HuggingFaceEndpoint(
+            repo_id="google/flan-t5-xxl", huggingfacehub_api_token=api_key
+        )
+    # Add logic for Claude, Gemini, Ollama, etc.
+    else:
+        raise ValueError(
+            f"Provider '{provider}' is not supported or missing dependencies."
+        )
+
+
+def summarize_text(text, api_key, st, provider="OpenAI"):
     try:
         text_splitter = RecursiveCharacterTextSplitter(
             chunk_size=4000, chunk_overlap=200, separators=["\n\n", "\n", " ", ""]
         )
         docs = text_splitter.create_documents([text])
-        llm = ChatOpenAI(model="gpt-4o-mini", temperature=0.3, api_key=api_key)
+        llm = get_llm(provider, api_key)
 
         if len(docs) <= 1:
             prompt_template = """
