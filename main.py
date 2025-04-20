@@ -1,4 +1,5 @@
 import streamlit as st
+from dotenv import dotenv_values
 from modules.text_extraction import extract_text_from_file
 from modules.web_content_loader import extract_text_from_url
 from modules.summarizer import summarize_text
@@ -10,6 +11,7 @@ from modules.ui_components import (
     about_expander,
 )
 
+env_variables = dotenv_values(".env")
 set_page_config()
 add_custom_css()
 main_header()
@@ -77,10 +79,30 @@ api_key = st.text_input(
     help=api_key_help[provider],
 )
 
+# Map provider to environment variable names
+provider_env_vars = {
+    "OpenAI": "OPENAI_API_KEY",
+    "Mistral": "MISTRAL_API_KEY",
+    "Claude": "CLAUDE_API_KEY",
+    "Gemini": "GEMINI_API_KEY",
+    "Hugging Face": "HF_TOKEN",
+    "Ollama": "OLLAMA_ENDPOINT",
+}
+
 if "summary" not in st.session_state:
     st.session_state.summary = None
 
 if st.button("Generate Summary"):
+    # If API key not provided, try to fetch from .env
+    if not api_key:
+        st.warning(f"API key not provided. Attempting to fetch from the `.env` file.")
+        # Check if the environment variable for the selected provider is set
+        if provider == "Ollama":
+            api_key = env_variables.get("OLLAMA_ENDPOINT", "")
+        else:
+            # Get the environment variable name for the selected provider
+            env_var = provider_env_vars.get(provider)
+            api_key = env_variables.get(env_var, "")
     if not api_key and provider != "Ollama":
         st.error(f"Please enter your {api_key_label[provider]}")
     elif text:
