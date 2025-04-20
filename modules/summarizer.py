@@ -33,6 +33,7 @@ def summarize_text(text, api_key, st, provider="OpenAI"):
             chunk_size=4000, chunk_overlap=200, separators=["\n\n", "\n", " ", ""]
         )
         docs = text_splitter.create_documents([text])
+
         llm = get_llm(provider, api_key)
 
         if len(docs) <= 1:
@@ -58,6 +59,7 @@ def summarize_text(text, api_key, st, provider="OpenAI"):
 
         Concise Summary:
         """
+
         combine_prompt_template = """
         You are provided with multiple summaries from different sections of a document or article.
         Your task is to create a comprehensive, well-structured final summary that:
@@ -71,6 +73,7 @@ def summarize_text(text, api_key, st, provider="OpenAI"):
 
         Comprehensive Final Summary:
         """
+
         map_prompt = PromptTemplate(
             template=map_prompt_template, input_variables=["text"]
         )
@@ -84,7 +87,8 @@ def summarize_text(text, api_key, st, provider="OpenAI"):
             combine_prompt=combine_prompt,
             verbose=False,
         )
-        return summary_chain.run(docs)
+        result = summary_chain.invoke(docs)
+        return result["output_text"]
     except Exception as e:
         st.error(f"Error in summarization: {str(e)}")
         return None
