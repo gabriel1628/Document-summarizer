@@ -40,28 +40,30 @@ def summarize_text(
         llm = get_llm(provider, api_key, model)
 
         if len(docs) <= 1:
+            print("Using single prompt for summarization.")
             prompt_template = single_prompt
             prompt = PromptTemplate(template=prompt_template, input_variables=["text"])
             chain = prompt | llm | StrOutputParser()
             return chain.invoke({"text": text})
-
-        map_prompt_template = map_prompt
-        combine_prompt_template = combine_prompt
-        map_prompt_obj = PromptTemplate(
-            template=map_prompt_template, input_variables=["text"]
-        )
-        combine_prompt_obj = PromptTemplate(
-            template=combine_prompt_template, input_variables=["text"]
-        )
-        summary_chain = load_summarize_chain(
-            llm,
-            chain_type="map_reduce",
-            map_prompt=map_prompt_obj,
-            combine_prompt=combine_prompt_obj,
-            verbose=False,
-        )
-        result = summary_chain.invoke(docs)
-        return result["output_text"]
+        else:
+            print("Using map-reduce prompt for summarization.")
+            map_prompt_template = map_prompt
+            combine_prompt_template = combine_prompt
+            map_prompt_obj = PromptTemplate(
+                template=map_prompt_template, input_variables=["text"]
+            )
+            combine_prompt_obj = PromptTemplate(
+                template=combine_prompt_template, input_variables=["text"]
+            )
+            summary_chain = load_summarize_chain(
+                llm,
+                chain_type="map_reduce",
+                map_prompt=map_prompt_obj,
+                combine_prompt=combine_prompt_obj,
+                verbose=False,
+            )
+            result = summary_chain.invoke(docs)
+            return result["output_text"]
     except Exception as e:
         st.error(f"Error in summarization: {str(e)}")
         return None
