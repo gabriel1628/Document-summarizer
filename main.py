@@ -69,7 +69,7 @@ provider_models = {
         "facebook/bart-large-cnn",
         "bigscience/mt0-large",
     ],
-    "Ollama": ["llama2", "mistral", "phi3", "codellama"],
+    # "Ollama": ["llama2", "mistral", "phi3", "codellama"],
 }
 
 provider = st.selectbox(
@@ -93,7 +93,7 @@ api_key_label = {
     "Claude": "Claude API Key",
     "Gemini": "Gemini API Key",
     "Hugging Face": "Hugging Face API Key",
-    "Ollama": "Ollama Endpoint (optional)",
+    # "Ollama": "Ollama Endpoint (optional)",
 }
 api_key_help = {
     "OpenAI": "Your OpenAI API key is required.",
@@ -101,7 +101,7 @@ api_key_help = {
     "Claude": "Your Claude API key is required.",
     "Gemini": "Your Gemini API key is required.",
     "Hugging Face": "Your Hugging Face API key is required.",
-    "Ollama": "Ollama usually runs locally. Enter endpoint if not default.",
+    # "Ollama": "Ollama usually runs locally. Enter endpoint if not default.",
 }
 st.markdown(
     f'<p class="sub-header">{api_key_label[provider]}</p>', unsafe_allow_html=True
@@ -119,7 +119,7 @@ provider_env_vars = {
     "Claude": "CLAUDE_API_KEY",
     "Gemini": "GEMINI_API_KEY",
     "Hugging Face": "HF_TOKEN",
-    "Ollama": "OLLAMA_ENDPOINT",
+    # "Ollama": "OLLAMA_ENDPOINT",
 }
 
 if "summary" not in st.session_state:
@@ -129,15 +129,8 @@ if st.button("Generate Summary"):
     # If API key not provided, try to fetch from .env
     if not api_key:
         st.warning(f"API key not provided. Attempting to fetch from the `.env` file.")
-        # Check if the environment variable for the selected provider is set
-        if provider == "Ollama":
-            api_key = env_variables.get("OLLAMA_ENDPOINT", "")
-        else:
-            # Get the environment variable name for the selected provider
-            env_var = provider_env_vars.get(provider)
-            api_key = env_variables.get(env_var, "")
-    if not api_key and provider != "Ollama":
-        st.error(f"Please enter your {api_key_label[provider]}")
+        env_var = provider_env_vars.get(provider)
+        api_key = env_variables.get(env_var, "")
     elif text:
         with st.spinner("Generating summary..."):
             summary = summarize_text(
