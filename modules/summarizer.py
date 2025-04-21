@@ -2,7 +2,6 @@ from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import PromptTemplate
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain.chains.summarize import load_summarize_chain
-from modules.prompts import single_prompt, map_prompt, combine_prompt
 
 
 def get_llm(provider, api_key, model):

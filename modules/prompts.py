@@ -1,4 +1,4 @@
-single_prompt = """
+SINGLE_PROMPT = """
 Write a comprehensive summary of the following text. The summary should:
 1. Highlight the main points and key ideas
 2. Include important details and supporting evidence
@@ -11,14 +11,14 @@ Text to summarize:
 Comprehensive Summary:
 """
 
-map_prompt = """
+MAP_PROMPT = """
 Write a concise summary of the following text, focusing on the key points:
 {text}
 
 Concise Summary:
 """
 
-combine_prompt = """
+COMBINE_PROMPT = """
 You are provided with multiple summaries from different sections of a document or article.
 Your task is to create a comprehensive, well-structured final summary that:
 1. Integrates all the important information from the individual summaries

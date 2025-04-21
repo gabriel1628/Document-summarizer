@@ -10,7 +10,7 @@ from modules.ui_components import (
     sidebar_info,
     about_expander,
 )
-from modules.prompts import single_prompt, map_prompt, combine_prompt
+import modules.prompts as prompts
 from modules.provider_config import (
     provider_models,
     api_key_label,
@@ -95,9 +95,9 @@ if st.button("Generate Summary"):
                 api_key,
                 st,
                 provider,
-                single_prompt=single_prompt,
-                map_prompt=map_prompt,
-                combine_prompt=combine_prompt,
+                single_prompt=prompts.SINGLE_PROMPT,
+                map_prompt=prompts.MAP_PROMPT,
+                combine_prompt=prompts.COMBINE_PROMPT,
                 model=model,
             )
             if summary:
