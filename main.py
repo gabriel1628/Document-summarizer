@@ -11,6 +11,12 @@ from modules.ui_components import (
     about_expander,
 )
 from modules.prompts import single_prompt, map_prompt, combine_prompt
+from modules.provider_config import (
+    provider_models,
+    api_key_label,
+    api_key_help,
+    provider_env_vars,
+)
 
 env_variables = dotenv_values(".env")
 set_page_config()
@@ -49,29 +55,6 @@ with tab2:
 # Add provider selection
 st.markdown('<p class="sub-header">LLM Provider</p>', unsafe_allow_html=True)
 
-# Map provider to available models
-provider_models = {
-    "OpenAI": ["gpt-4o-mini", "gpt-4o", "gpt-4.1", "gpt-4.1-mini", "gpt-4.1-nano"],
-    "Mistral": [
-        "mistral-small-latest",
-        "mistral-large-latest",
-        "ministral-8b-latest",
-        "ministral-3b-latest",
-    ],
-    "Claude": [
-        "claude-3-opus-20240229",
-        "claude-3-sonnet-20240229",
-        "claude-3-haiku-20240307",
-    ],
-    "Gemini": ["gemini-1.5-pro-latest", "gemini-1.0-pro-latest"],
-    "Hugging Face": [
-        "google/flan-t5-xxl",
-        "facebook/bart-large-cnn",
-        "bigscience/mt0-large",
-    ],
-    # "Ollama": ["llama2", "mistral", "phi3", "codellama"],
-}
-
 provider = st.selectbox(
     "Choose LLM Provider",
     list(provider_models.keys()),
@@ -87,22 +70,6 @@ model = st.selectbox(
 )
 
 # Show API key input for the selected provider
-api_key_label = {
-    "OpenAI": "OpenAI API Key",
-    "Mistral": "Mistral API Key",
-    "Claude": "Claude API Key",
-    "Gemini": "Gemini API Key",
-    "Hugging Face": "Hugging Face API Key",
-    # "Ollama": "Ollama Endpoint (optional)",
-}
-api_key_help = {
-    "OpenAI": "Your OpenAI API key is required.",
-    "Mistral": "Your Mistral API key is required.",
-    "Claude": "Your Claude API key is required.",
-    "Gemini": "Your Gemini API key is required.",
-    "Hugging Face": "Your Hugging Face API key is required.",
-    # "Ollama": "Ollama usually runs locally. Enter endpoint if not default.",
-}
 st.markdown(
     f'<p class="sub-header">{api_key_label[provider]}</p>', unsafe_allow_html=True
 )
@@ -111,16 +78,6 @@ api_key = st.text_input(
     type="password",
     help=api_key_help[provider],
 )
-
-# Map provider to environment variable names
-provider_env_vars = {
-    "OpenAI": "OPENAI_API_KEY",
-    "Mistral": "MISTRAL_API_KEY",
-    "Claude": "CLAUDE_API_KEY",
-    "Gemini": "GEMINI_API_KEY",
-    "Hugging Face": "HF_TOKEN",
-    # "Ollama": "OLLAMA_ENDPOINT",
-}
 
 if "summary" not in st.session_state:
     st.session_state.summary = None
@@ -131,7 +88,7 @@ if st.button("Generate Summary"):
         st.warning(f"API key not provided. Attempting to fetch from the `.env` file.")
         env_var = provider_env_vars.get(provider)
         api_key = env_variables.get(env_var, "")
-    elif text:
+    if text:
         with st.spinner("Generating summary..."):
             summary = summarize_text(
                 text,
