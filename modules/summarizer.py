@@ -2,6 +2,7 @@ from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import PromptTemplate
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain.chains.summarize import load_summarize_chain
+from modules.prompts import single_prompt, map_prompt, combine_prompt
 
 
 def get_llm(provider, api_key):
@@ -27,68 +28,44 @@ def get_llm(provider, api_key):
         )
 
 
-def summarize_text(text, api_key, st, provider="OpenAI"):
+def summarize_text(
+    text,
+    api_key,
+    st,
+    provider="OpenAI",
+    user_prompt=None,
+    map_prompt=None,
+    combine_prompt=None,
+):
     try:
         text_splitter = RecursiveCharacterTextSplitter(
             chunk_size=4000, chunk_overlap=200, separators=["\n\n", "\n", " ", ""]
         )
         docs = text_splitter.create_documents([text])
-
         llm = get_llm(provider, api_key)
 
-        if len(docs) <= 1:
-            prompt_template = """
-            Write a comprehensive summary of the following text. The summary should:
-            1. Highlight the main points and key ideas
-            2. Include important details and supporting evidence
-            3. Maintain the original meaning and intent
-            4. Be well-structured and coherent
-
-            Text to summarize:
-            {text}
-
-            Comprehensive Summary:
-            """
+        if len(docs) <= 1 or user_prompt:
+            prompt_template = user_prompt or single_prompt
             prompt = PromptTemplate(template=prompt_template, input_variables=["text"])
             chain = prompt | llm | StrOutputParser()
             return chain.invoke({"text": text})
 
-        map_prompt_template = """
-        Write a concise summary of the following text, focusing on the key points:
-        {text}
-
-        Concise Summary:
-        """
-
-        combine_prompt_template = """
-        You are provided with multiple summaries from different sections of a document or article.
-        Your task is to create a comprehensive, well-structured final summary that:
-        1. Integrates all the important information from the individual summaries
-        2. Presents a coherent overview of the entire content
-        3. Organizes the information logically with appropriate headings and structure
-        4. Eliminates redundancy while preserving important details
-
-        Individual summaries:
-        {text}
-
-        Comprehensive Final Summary:
-        """
-
-        map_prompt = PromptTemplate(
+        map_prompt_template = map_prompt or map_prompt
+        combine_prompt_template = combine_prompt or combine_prompt
+        map_prompt_obj = PromptTemplate(
             template=map_prompt_template, input_variables=["text"]
         )
-        combine_prompt = PromptTemplate(
+        combine_prompt_obj = PromptTemplate(
             template=combine_prompt_template, input_variables=["text"]
         )
         summary_chain = load_summarize_chain(
             llm,
             chain_type="map_reduce",
-            map_prompt=map_prompt,
-            combine_prompt=combine_prompt,
+            map_prompt=map_prompt_obj,
+            combine_prompt=combine_prompt_obj,
             verbose=False,
         )
-        result = summary_chain.invoke(docs)
-        return result["output_text"]
+        return summary_chain.run(docs)
     except Exception as e:
         st.error(f"Error in summarization: {str(e)}")
         return None
