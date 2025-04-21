@@ -42,20 +42,26 @@ def main_header():
     )
 
 
+def sidebar_title():
+    with st.sidebar:
+        st.markdown("### Document Summarizer")
+        st.markdown("A Streamlit app powered by LangChain")
+        st.markdown("---")
+
+
 def sidebar_info():
-    st.sidebar.markdown("### Document Summarizer")
-    st.sidebar.markdown("A Streamlit app powered by LangChain")
-    st.sidebar.markdown("---")
-    st.sidebar.markdown("### How to use:")
-    st.sidebar.markdown(
-        """
-    1. Select either "Upload File" or "Enter URL" tab
-    2. Provide your document or URL
-    3. Enter your API key
-    4. Click "Generate Summary"
-    5. View and download your summary
-    """
-    )
+    with st.sidebar:
+        with st.expander("How to use"):
+            # st.markdown("### How to use:")
+            st.markdown(
+                """
+            1. Select either "Upload File" or "Enter URL" tab
+            2. Provide your document or URL
+            3. Enter your API key
+            4. Click "Generate Summary"
+            5. View and download your summary
+            """
+            )
 
 
 def about_expander():
