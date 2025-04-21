@@ -60,7 +60,8 @@ def summarize_text(
             combine_prompt=combine_prompt_obj,
             verbose=False,
         )
-        return summary_chain.run(docs)
+        result = summary_chain.invoke(docs)
+        return result["output_text"]
     except Exception as e:
         st.error(f"Error in summarization: {str(e)}")
         return None
