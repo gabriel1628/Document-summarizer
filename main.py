@@ -10,6 +10,7 @@ from modules.ui_components import (
     sidebar_info,
     about_expander,
 )
+from modules.prompts import single_prompt, map_prompt, combine_prompt
 
 env_variables = dotenv_values(".env")
 set_page_config()
@@ -89,6 +90,38 @@ provider_env_vars = {
     "Ollama": "OLLAMA_ENDPOINT",
 }
 
+with st.expander("Summarization Prompt"):
+    prompt_type = st.radio(
+        "Prompt type",
+        ["Single document", "Multi-chunk (map/combine)"],
+        index=0,
+        help="Choose 'Single document' for short texts, 'Multi-chunk' for long texts.",
+    )
+
+    if prompt_type == "Single document":
+        user_prompt = st.text_area(
+            "Edit the summarization prompt (use {text} as placeholder for the document):",
+            value=single_prompt,
+            height=200,
+            key="single_prompt",
+        )
+        map_prompt_val = None
+        combine_prompt_val = None
+    else:
+        map_prompt_val = st.text_area(
+            "Edit the MAP prompt (use {text} as placeholder for the chunk):",
+            value=map_prompt,
+            height=150,
+            key="map_prompt",
+        )
+        combine_prompt_val = st.text_area(
+            "Edit the COMBINE prompt (use {text} as placeholder for the summaries):",
+            value=combine_prompt,
+            height=200,
+            key="combine_prompt",
+        )
+        user_prompt = None
+
 if "summary" not in st.session_state:
     st.session_state.summary = None
 
@@ -107,7 +140,15 @@ if st.button("Generate Summary"):
         st.error(f"Please enter your {api_key_label[provider]}")
     elif text:
         with st.spinner("Generating summary..."):
-            summary = summarize_text(text, api_key, st, provider)
+            summary = summarize_text(
+                text,
+                api_key,
+                st,
+                provider,
+                user_prompt=user_prompt,
+                map_prompt=map_prompt_val,
+                combine_prompt=combine_prompt_val,
+            )
             if summary:
                 st.session_state.summary = summary
     else:
