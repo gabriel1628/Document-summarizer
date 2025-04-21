@@ -27,10 +27,11 @@ def summarize_text(
     text,
     api_key,
     st,
-    provider="OpenAI",
-    map_prompt=None,
-    combine_prompt=None,
-    model=None,
+    provider,
+    single_prompt,
+    map_prompt,
+    combine_prompt,
+    model,
 ):
     try:
         text_splitter = RecursiveCharacterTextSplitter(

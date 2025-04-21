@@ -95,6 +95,7 @@ if st.button("Generate Summary"):
                 api_key,
                 st,
                 provider,
+                single_prompt=single_prompt,
                 map_prompt=map_prompt,
                 combine_prompt=combine_prompt,
                 model=model,
