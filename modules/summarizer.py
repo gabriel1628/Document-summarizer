@@ -33,7 +33,6 @@ def summarize_text(
     api_key,
     st,
     provider="OpenAI",
-    user_prompt=None,
     map_prompt=None,
     combine_prompt=None,
 ):
@@ -44,8 +43,8 @@ def summarize_text(
         docs = text_splitter.create_documents([text])
         llm = get_llm(provider, api_key)
 
-        if len(docs) <= 1 or user_prompt:
-            prompt_template = user_prompt or single_prompt
+        if len(docs) <= 1:
+            prompt_template = single_prompt
             prompt = PromptTemplate(template=prompt_template, input_variables=["text"])
             chain = prompt | llm | StrOutputParser()
             return chain.invoke({"text": text})
