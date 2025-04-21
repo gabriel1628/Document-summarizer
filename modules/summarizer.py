@@ -5,23 +5,18 @@ from langchain.chains.summarize import load_summarize_chain
 from modules.prompts import single_prompt, map_prompt, combine_prompt
 
 
-def get_llm(provider, api_key):
+def get_llm(provider, api_key, model):
     # fmt: off
     if provider == "OpenAI":
         from langchain_openai import ChatOpenAI 
-        return ChatOpenAI(model="gpt-4o-mini", temperature=0.3, api_key=api_key)
+        return ChatOpenAI(model=model, temperature=0.3, api_key=api_key)
     elif provider == "Mistral":
         from langchain_mistralai import ChatMistralAI
-        return ChatMistralAI(
-            model="mistral-small-latest", temperature=0.3, api_key=api_key
-        )
+        return ChatMistralAI(model=model, temperature=0.3, api_key=api_key)
     elif provider == "Hugging Face":
         from langchain_huggingface import HuggingFaceEndpoint
-        return HuggingFaceEndpoint(
-            repo_id="google/flan-t5-xxl", huggingfacehub_api_token=api_key
-        )
-    # Add logic for Claude, Gemini, Ollama, etc.
-    # fmt: on
+        return HuggingFaceEndpoint(repo_id=model, huggingfacehub_api_token=api_key)
+    # Add logic for Claude, Gemini, Ollama, etc., using the selected model
     else:
         raise ValueError(
             f"Provider '{provider}' is not supported or missing dependencies."
@@ -35,13 +30,14 @@ def summarize_text(
     provider="OpenAI",
     map_prompt=None,
     combine_prompt=None,
+    model=None,
 ):
     try:
         text_splitter = RecursiveCharacterTextSplitter(
             chunk_size=4000, chunk_overlap=200, separators=["\n\n", "\n", " ", ""]
         )
         docs = text_splitter.create_documents([text])
-        llm = get_llm(provider, api_key)
+        llm = get_llm(provider, api_key, model)
 
         if len(docs) <= 1:
             prompt_template = single_prompt
@@ -49,8 +45,8 @@ def summarize_text(
             chain = prompt | llm | StrOutputParser()
             return chain.invoke({"text": text})
 
-        map_prompt_template = map_prompt or map_prompt
-        combine_prompt_template = combine_prompt or combine_prompt
+        map_prompt_template = map_prompt
+        combine_prompt_template = combine_prompt
         map_prompt_obj = PromptTemplate(
             template=map_prompt_template, input_variables=["text"]
         )

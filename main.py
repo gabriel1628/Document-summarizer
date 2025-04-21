@@ -48,10 +48,42 @@ with tab2:
 
 # Add provider selection
 st.markdown('<p class="sub-header">LLM Provider</p>', unsafe_allow_html=True)
+
+# Map provider to available models
+provider_models = {
+    "OpenAI": ["gpt-4o-mini", "gpt-4o", "gpt-4.1", "gpt-4.1-mini", "gpt-4.1-nano"],
+    "Mistral": [
+        "mistral-small-latest",
+        "mistral-large-latest",
+        "ministral-8b-latest",
+        "ministral-3b-latest",
+    ],
+    "Claude": [
+        "claude-3-opus-20240229",
+        "claude-3-sonnet-20240229",
+        "claude-3-haiku-20240307",
+    ],
+    "Gemini": ["gemini-1.5-pro-latest", "gemini-1.0-pro-latest"],
+    "Hugging Face": [
+        "google/flan-t5-xxl",
+        "facebook/bart-large-cnn",
+        "bigscience/mt0-large",
+    ],
+    "Ollama": ["llama2", "mistral", "phi3", "codellama"],
+}
+
 provider = st.selectbox(
     "Choose LLM Provider",
-    ["OpenAI", "Mistral", "Claude", "Gemini", "Hugging Face", "Ollama"],
+    list(provider_models.keys()),
     index=0,
+)
+
+# Model selection based on provider
+model = st.selectbox(
+    f"Choose model for {provider}",
+    provider_models[provider],
+    index=0,
+    key="model_select",
 )
 
 # Show API key input for the selected provider
@@ -115,6 +147,7 @@ if st.button("Generate Summary"):
                 provider,
                 map_prompt=map_prompt,
                 combine_prompt=combine_prompt,
+                model=model,
             )
             if summary:
                 st.session_state.summary = summary
