@@ -13,13 +13,20 @@ A Streamlit application that uses LangChain and OpenAI's GPT-4o-mini to provide 
 
 ```
 document-summarizer/
-├── app.py                  # Main application file
-├── file_processors.py      # File processing functions
-├── url_processor.py        # URL processing functions
-├── summarizer.py           # Text summarization functionality
-├── ui_components.py        # UI components and styling
-├── requirements.txt        # Project dependencies
-├── README.md               # Project documentation
+├── main.py
+├── modules/
+│   ├── prompts.py
+│   ├── provider_config.py
+│   ├── summarizer.py
+│   ├── text_extraction.py
+│   ├── ui_components.py
+│   └── web_content_loader.py
+├── notebooks/
+├── pyproject.toml
+├── Readme.md
+├── requirements.txt
+├── test_documents/
+└── uv.lock
 ```
 
 ## Installation
@@ -123,7 +130,7 @@ This project is recommended to run on Python 3.11.
 1. **Run the Streamlit app**:
 
    ```bash
-   streamlit run app.py
+   streamlit run main.py
    ```
 
 2. **Open your browser** and go to the displayed URL (typically http://localhost:8501)
@@ -131,23 +138,16 @@ This project is recommended to run on Python 3.11.
 3. **Using the app**:
    - Select either "Upload File" or "Enter URL" tab
    - Provide your document or URL
-   - Enter your OpenAI API key
+   - Select your LLM provider and model
+   - Enter your API key
    - Click "Generate Summary"
    - View and download your summary
-
-## OpenAI API Key
-
-You'll need an OpenAI API key to use this application:
-
-1. If you don't have an OpenAI account, sign up at [platform.openai.com](https://platform.openai.com/)
-2. Generate an API key in your OpenAI dashboard
-3. Enter this API key in the application when prompted
 
 ## How it works
 
 1. The app extracts text from your document or URL
-2. For longer documents, the text is split into manageable chunks
-3. GPT-4o-mini processes each chunk and creates a summary
+2. For long documents, the text is split into manageable chunks
+3. The LLM processes each chunk and creates a summary
 4. For multi-chunk documents, individual summaries are combined into a coherent final summary
 
 ## Dependencies
@@ -159,47 +159,6 @@ You'll need an OpenAI API key to use this application:
 - pandas: Data processing (for spreadsheets)
 - openpyxl: Excel file support
 
-## Development
-
-### Adding support for new file types
-
-To add support for new file types, modify the `file_processors.py` file and add a new extraction function.
-
-### Implementing different summarization strategies
-
-To implement different summarization strategies, modify the `summarizer.py` file.
-
-## Troubleshooting
-
-### Python Version Issues
-
-If you encounter errors related to Python version compatibility:
-
-1. Verify your Python version:
-   ```bash
-   python --version
-   ```
-
-2. If it's not 3.11.x, recreate your virtual environment targeting Python 3.11:
-   ```bash
-   # With uv
-   uv venv --python=3.11 --force
-   ```
-
-### Package Installation Issues
-
-If you encounter issues installing packages:
-
-1. Make sure your virtual environment is activated
-2. Try updating UV to the latest version:
-   ```bash
-   pip install --upgrade uv
-   ```
-3. Install packages individually if there are conflicts:
-   ```bash
-   uv pip install streamlit langchain langchain-openai
-   ```
-
 ## Privacy Note
 
-Your OpenAI API key is used only for making requests to OpenAI and is not stored or logged anywhere.
+Your API key is used only for making requests to the LLM provider and is not stored or logged anywhere.
