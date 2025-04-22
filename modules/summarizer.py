@@ -44,7 +44,7 @@ def summarize_text(
             prompt_template = single_prompt
             prompt = PromptTemplate(template=prompt_template, input_variables=["text"])
             chain = prompt | llm | StrOutputParser()
-            return chain.invoke({"text": text})
+            return chain.invoke({"text": text}), llm
         else:
             print("Using map-reduce prompt for summarization.")
             map_prompt_template = map_prompt
@@ -63,7 +63,7 @@ def summarize_text(
                 verbose=False,
             )
             result = summary_chain.invoke(docs)
-            return result["output_text"]
+            return result["output_text"], llm
     except Exception as e:
         st.error(f"Error in summarization: {str(e)}")
         return None

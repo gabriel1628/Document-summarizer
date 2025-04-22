@@ -14,6 +14,7 @@ from modules.ui_components import (
 )
 import modules.prompts as prompts
 from modules.provider_config import provider_env_vars
+from modules.chat import chat_about_summary
 
 env_variables = dotenv_values(".env")
 set_page_config()
@@ -64,7 +65,7 @@ if st.button("Generate Summary"):
         api_key = env_variables.get(env_var, "")
     if text:
         with st.spinner("Generating summary..."):
-            summary = summarize_text(
+            summary, llm = summarize_text(
                 text,
                 api_key,
                 st,
@@ -76,6 +77,7 @@ if st.button("Generate Summary"):
             )
             if summary:
                 st.session_state.summary = summary
+                st.session_state.llm = llm
     else:
         st.warning("Please upload a file or enter a valid URL first")
 
@@ -88,5 +90,9 @@ if st.session_state.summary:
         file_name="document_summary.txt",
         mime="text/plain",
     )
+    st.markdown("### Generated Summary")
+    st.write(st.session_state.summary)
+    # Use the same LLM instance as for summarization
+    chat_about_summary(st.session_state.summary, st.session_state.llm)
 
 about_expander()
