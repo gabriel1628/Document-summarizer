@@ -1,4 +1,9 @@
 import streamlit as st
+from modules.provider_config import (
+    provider_models,
+    api_key_label,
+    api_key_help,
+)
 
 
 def set_page_config():
@@ -62,6 +67,38 @@ def sidebar_info():
             5. View and download your summary
             """
             )
+
+
+def choose_llm():
+    with st.sidebar:
+        # Add provider selection
+        st.markdown('<p class="sub-header">LLM Provider</p>', unsafe_allow_html=True)
+
+        provider = st.selectbox(
+            "Choose LLM Provider",
+            list(provider_models.keys()),
+            index=0,
+        )
+
+        # Model selection based on provider
+        model = st.selectbox(
+            f"Choose model for {provider}",
+            provider_models[provider],
+            index=0,
+            key="model_select",
+        )
+
+        # Show API key input for the selected provider
+        st.markdown(
+            f'<p class="sub-header">{api_key_label[provider]}</p>',
+            unsafe_allow_html=True,
+        )
+        api_key = st.text_input(
+            f"Enter your {api_key_label[provider]}",
+            type="password",
+            help=api_key_help[provider],
+        )
+        return provider, model, api_key
 
 
 def about_expander():
